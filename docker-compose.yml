@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:15
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db_smarti_v2
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  smarti-backend:
+    build:
+      context: ./smarti-backend
+    container_name: smarti-backend
+    ports:
+      - "10003:10003"
+    depends_on:
+      - db
+    env_file:
+      - ./smarti-backend/.env
+    # hapus volume mount supaya pakai hasil build di image
+    # volumes:
+    #   - ./smarti-backend:/app
+    command: npm run start:prod
+
+  smarti-frontend:
+    build:
+      context: ./smarti-frontend
+    container_name: smarti-frontend
+    ports:
+      - "3000:3000"
+    # hapus volume mount supaya pakai hasil build di image
+    # volumes:
+    #   - ./smarti-frontend:/app
+    command: npm run start
+
+volumes:
+  pgdata:
